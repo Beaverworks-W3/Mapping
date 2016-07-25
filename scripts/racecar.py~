@@ -184,9 +184,9 @@ class racecar:
 
         THRESHOLD = 0.05                # Sets threshold to 5cm
         Kp = 0.1
-        Kd = 0.2
+        Kd = - 0.2
 
-        steering_angle = (Kp * error) - (Kd * self.errorDif)
+        steering_angle = (Kp * error) + (Kd * self.errorDif)
         self.errorDif = error - self.errorDif
 
         self.drive(speed, steering_angle)    # Execute drive function

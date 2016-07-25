@@ -64,10 +64,15 @@ class racecar:
         total = 0
 
         if side == "F":
+	    lengthx = ranges[480]
+	    lengthy = ranges[600]
+
+	    '''
             total = 0
             for count in range(530, 550):
                 total += ranges[count]
             return total/20
+	    '''
         
         elif side == "L":                 # Wall on left side
             lengthx = ranges[780]
