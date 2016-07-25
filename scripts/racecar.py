@@ -69,7 +69,7 @@ class racecar:
         lengthy = 0
         total = 0
 
-        if side == "F":
+        if side == "F":			# Wall in the front for turning
 	    lengthx = ranges[480]
 	    lengthy = ranges[600]
 
