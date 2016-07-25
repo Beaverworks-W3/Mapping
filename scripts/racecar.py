@@ -27,12 +27,18 @@ class racecar:
     def __init__(self):
         self.DrivePub = rospy.Publisher('/vesc/ackermann_cmd_mux/input/navigation', AckermannDriveStamped,queue_size=10)
         self.SafetyPub = rospy.Publisher('vesc/ackermann_cmd_mux/input/safety', AckermannDriveStamped,queue_size=10)        
-
         self.errorDif = 0
         
         # Add any other topic variables here
     
-
+	def turn(self, ranges, side):
+		straightDis = ranges[540]
+		shortestDis = self.calcDistance(ranges,"F")
+		if straightDis < 0.5:
+			if straightDis/shortestDis > 2:
+				self.drive(-0.5,0.0)
+			else:
+				self.drive(0.5,0.5)
  
     # Function: drive
     # Parameters: speed (float), angle (float)
