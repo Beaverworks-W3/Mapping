@@ -33,7 +33,7 @@ SPEED = 1.0
 SIDE = "L"
 RACER = racecar()
 TURN = "CCW"
-FRONT_DISTANCE = .5
+FRONT_DISTANCE = .7
 
 
 # CALLBACK
@@ -44,12 +44,13 @@ def callBack(msg):
     # <implement here>
     
     # Query for safety
-    RACER.safety(msg.ranges)
+    #RACER.safety(msg.ranges)
 
     # Query for P Wall Follow Controller
 
-    if(RACER.calcDistance(msg.ranges, "F") < FRONT_DISTANCE):
+    if(msg.ranges[540] < FRONT_DISTANCE):
 	RACER.turn(msg.ranges, TURN)
+	print("turn")
     else:
     	RACER.PDWallFollow(msg.ranges, D_DESIRED, SPEED, SIDE)
 

@@ -36,7 +36,7 @@ class racecar:
 		shortestDis = self.calcDistance(ranges,"F")
 		print(straightDis)
 		print(shortestDis)
-		if shortestDis < 0.3:
+		if shortestDis < 0.4:
 				self.drive(-0.5,0.0)
 		else:
 				self.drive(0.5,1.0)
@@ -71,8 +71,8 @@ class racecar:
         total = 0
 
         if side == "F":			# Wall in the front for turning
-	    lengthx = ranges[540]
-	    lengthy = ranges[660]
+	    lengthx = ranges[480]
+	    lengthy = ranges[600]
 
 	    '''
             total = 0
