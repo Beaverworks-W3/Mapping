@@ -30,8 +30,10 @@ NODE_NAME = 'PDWallFollow'
 D_DESIRED = 0.2
 SPEED = 1.0
 
-side = "L"
-kevin = racecar()
+SIDE = "L"
+RACER = racecar()
+TURN = "CCW"
+FRONT_DISTANCE = .7
 
 
 # CALLBACK
@@ -42,10 +44,15 @@ def callBack(msg):
     # <implement here>
     
     # Query for safety
-    kevin.safety(msg.ranges)
+    #RACER.safety(msg.ranges)
 
     # Query for P Wall Follow Controller
-    kevin.PDWallFollow(msg.ranges, D_DESIRED, SPEED, side)
+
+    if(msg.ranges[540] < FRONT_DISTANCE):
+	RACER.turn(msg.ranges, TURN)
+	print("turn")
+    else:
+    	RACER.PDWallFollow(msg.ranges, D_DESIRED, SPEED, SIDE)
 
 
 # MAIN()      
