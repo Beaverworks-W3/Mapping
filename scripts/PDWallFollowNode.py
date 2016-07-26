@@ -33,7 +33,7 @@ SPEED = 1.0
 SIDE = "L"
 RACER = racecar()
 TURN = "CCW"
-FRONT_DISTANCE = .7
+FRONT_DISTANCE = .65
 
 
 # CALLBACK
@@ -52,7 +52,7 @@ def callBack(msg):
 		RACER.turn(msg.ranges, TURN)
 		print("turn")
     else:
-    	RACER.bothWallFollow(msg.ranges, D_DESIRED, SPEED, SIDE)
+    	RACER.bothWallFollow(msg.ranges, SPEED)
 
 
 # MAIN()      

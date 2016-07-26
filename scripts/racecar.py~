@@ -32,11 +32,9 @@ class racecar:
         # Add any other topic variables here
     
     def turn(self, ranges, side):
-		straightDis = ranges[540]
+		straightDis = ranges[len(ranges)/2]
 		shortestDis = self.calcDistance(ranges,"F")
-		print(straightDis)
-		print(shortestDis)
-		if shortestDis < 0.3:
+		if shortestDis < 0.25:
 				self.drive(-0.5,0.0)
 		else:
 				self.drive(0.5,1.0)
@@ -70,9 +68,11 @@ class racecar:
         lengthy = 0
         total = 0
 
+	RANGES_LENGTH = len(ranges)
+
         if side == "F":			# Wall in the front for turning
-	    lengthx = ranges[540]
-	    lengthy = ranges[660]
+	    lengthx = ranges[RANGES_LENGTH/2-40]
+	    lengthy = ranges[RANGES_LENGTH/2+40]
 
 	    '''
             total = 0
@@ -198,7 +198,7 @@ class racecar:
         Kp = 0.1
         Kd = - 0.2
 
-        steering_angle = (Kp * error) + (Kd * self.errorDif)
+        steering_angle = (Kp * error) + Kd * (error-self.errorDif)
         self.errorDif = error 
 
         self.drive(speed, steering_angle)    # Execute drive function

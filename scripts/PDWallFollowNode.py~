@@ -52,7 +52,7 @@ def callBack(msg):
 		RACER.turn(msg.ranges, TURN)
 		print("turn")
     else:
-    	RACER.bothWallFollow(msg.ranges, D_DESIRED, SPEED, SIDE)
+    	RACER.bothWallFollow(msg.ranges, SPEED)
 
 
 # MAIN()      
