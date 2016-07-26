@@ -49,8 +49,8 @@ class racecar:
     def drive(self, speed, angle):
         msg = AckermannDriveStamped()           # Initializes msg variable
         msg.drive.speed = speed                 # Sets msg speed to entered speed
-        msg.drive.acceleration = 0              # Sets msg acceleration to 0
-        msg.drive.jerk = 1                      # Sets msg jerk to 1
+        msg.drive.acceleration = 1              # Sets msg acceleration to 0
+        msg.drive.jerk = 0                      # Sets msg jerk to 1
         msg.drive.steering_angle = angle        # Sets msg steering angle to entered angle
         msg.drive.steering_angle_velocity = 1   # Sets msg angle velocity to 1
         self.DrivePub.publish(msg)              # Publishes the message

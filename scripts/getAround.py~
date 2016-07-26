@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+import rospy
+import math
+from sensor_msgs.msg import LaserScan
+from ackermann_msgs.msg import AckermannDriveStamped
+from racecar import racecar
+
+class getAround:
+	def __init__(self):
+		self.scanResult = rospy.Subscriber("/scan",LaserScan,self.callBack)
+		self.car = racecar()
+	def callBack(self,msg):
+		result = values.index(min(values))
