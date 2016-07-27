@@ -82,12 +82,12 @@ class racecar:
 	    '''
         
         elif side == "L":                 # Wall on left side
-            lengthx = ranges[780]
-            lengthy = ranges[900]
+            lengthx = ranges[720]
+            lengthy = ranges[840]
 
         else:                           # Wall on right side
-            lengthx = ranges[300]
-            lengthy = ranges[180]
+            lengthx = ranges[360]
+            lengthy = ranges[240]
 
         zSquare = lengthx * lengthx + lengthy * lengthy - 2 * lengthx * lengthy * math.sqrt(3)/2
 	lengthz = math.sqrt(zSquare)

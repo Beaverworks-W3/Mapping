@@ -34,7 +34,7 @@ class racecar:
     def turn(self, ranges, side):
 		straightDis = ranges[len(ranges)/2]
 		shortestDis = self.calcDistance(ranges,"F")
-		if shortestDis < 0.25:
+		if straightDis < 0.25:
 				self.drive(-0.5,0.0)
 		else:
 				self.drive(0.5,1.0)

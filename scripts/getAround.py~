@@ -8,46 +8,49 @@ import time
 
 class getAround:
 	def __init__(self):
+
+		# create Subscriber and initialize racecar class
 		self.scanResult = rospy.Subscriber("/scan",LaserScan,self.callBack)
 		self.car = racecar()
+
 	def callBack(self,msg):
+		# perform lidar data smoothing (by averaging)
 		resultList = []
-		#resultList.append(msg.ranges[0])
-		#resultList.append(msg.ranges[1])
-		for i in range(60,1020):
+		for i in range(60,1020):				# creates array with 960 elements
 			average = 0
 			for j in range(-2,3):
-				average = average+msg.ranges[i+j]
+				average = average+msg.ranges[i+j]	# averages 5 values together
 			resultList.append(average/5)
-		#resultList.append(msg.ranges[1078])
-		#resultList.append(msg.ranges[1079])
-		print(resultList[480])
-		if min(resultList)<0.3:
+
+		print(resultList[480])					# print value of center front
+
+		
+		if min(resultList)<0.3:					# if too close avoid
 			self.avoid(resultList)
 			print("avoiding")
 		else:
-			self.follow(resultList)
+			self.follow(resultList)				# else wall follow
 			
 	def avoid(self,msg):
-		result = msg.index(min(msg))
-		#print(result)
-		difference = 480-result if (480-result) != 0 else 1
-		steering = 200.0/difference if abs(100.0/difference)<1 else difference/abs(difference)
-		#print(steering)
+		result = msg.index(min(msg))				# takes index of closes point
+
+		difference = 480-result if (480-result) != 0 else 1	# calculates angle from front
+
+		steering = 200.0/difference if abs(200.0/difference)<1 else difference/abs(difference)	# calculate steering 
+
 		if msg[480]<0.2:
 			self.car.drive(-0.25,0.0)
 			print("going back")
 			time.sleep(0.1)
+		elif(msg[480] < 0.6):
+			self.car.turn(msg, "CCW")
+			print("turn")
 		else:
 			self.car.drive(0.5,steering)
 			
 	def follow(self,msg):
-    		if(msg[480] < 0.6):
-			self.car.turn(msg, "CCW")
-			print("turn")
-    		else:
-    			self.car.drive(1.0,0.0)
-			print("wallfollowing")
+    		self.car.drive(1.0,0.0)
+		print("wallfollowing")
 
 if __name__ == "__main__":
 	rospy.init_node("getAround")
