@@ -13,6 +13,13 @@ class getAround:
 		self.scanResult = rospy.Subscriber("/scan",LaserScan,self.callBack)
 		self.car = racecar()
 
+	def calcLargestDistance(self, ranges, side):
+        
+		if side == "L":                 # Wall on left side
+		    leftSide = ranges[700: 900]
+		    return max(leftSide)
+
+
 	def callBack(self,msg):
 		# perform lidar data smoothing (by averaging)
 		resultList = []
@@ -24,10 +31,8 @@ class getAround:
 
 		print(resultList[480])					# print value of center front
 
-		
-		if min(resultList)<0.35:				# if too close avoid
+		if min(resultList)<0.4:					# if too close avoid
 			self.avoid(resultList)
-			print("avoiding")
 		else:
 			self.follow(resultList)				# else wall follow
 			
@@ -38,16 +43,16 @@ class getAround:
 
 		steering = 200.0/difference if abs(200.0/difference)<1 else difference/abs(difference)	# calculate steering 
 
-		if msg[480]<0.2: 					# if front is too close, go back
-			self.car.drive(-0.25,0.0)
+		if min(msg[420:540])<0.2: 					# if front is too close, go back
+			self.car.drive(-.5,0.0)
 			print("going back")
 			time.sleep(0.1)
-		elif(self.car.calcDistance(msg, "L") > .8):		# if left is empty, turn left
+		elif(self.calcLargestDistance(msg, "L") > .7):	# if left is empty, turn left
 			self.car.turn(msg, "CCW")
-			print("turn")
+			print("turning")	
 		else:
-			self.car.drive(0.5,steering)			# else avoid the obstacle
-			
+			self.car.drive(0.25,steering)			# else avoid the obstacle
+			print("avoiding")
 	def follow(self,msg):		
     		self.car.drive(1.0,0.0)					# drive straight
 		print("wallfollowing")
