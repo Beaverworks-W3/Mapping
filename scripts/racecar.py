@@ -51,7 +51,11 @@ class racecar:
         msg.drive.steering_angle_velocity = 1   # Sets msg angle velocity to 1
         self.DrivePub.publish(msg)              # Publishes the message
 
-
+    def safety(self,range):
+	msg = AckermannDriveStamped()
+	if min(range)<0.05:
+		msg.drive.speed = 0
+		self.SafetyPub.publish(msg)
     
     # Function: calcDistance
     # Parameters: ranges (list), side (string, L or R)
