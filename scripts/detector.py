@@ -97,8 +97,8 @@ class saveColor:
 		draw.text((0, 0),text,(255,255,0),font=font)
 		rand = self.index
 		self.index = self.index + 1
-		fileName = str(rand)+".jpeg"
-		pic.save(fileName)
+		fileName = "/home/racecar/challenge_photos/"+str(rand)+".jpeg"
+		pic.save(fileName,"jpeg")
 		self.img_pub.publish(text)
 	def findBiggest(self,contourList):
 		result = contourList[0]
