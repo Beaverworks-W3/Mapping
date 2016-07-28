@@ -107,7 +107,6 @@ class saveColor:
 		self.index = self.index + 1
 		fileName = "/home/racecar/challenge_photos/"+str(rand)+".jpeg"
 		pic.save(fileName,"jpeg")
-		pic.save(fileName)
 		self.img_pub.publish(text)
 	def findBiggest(self,contourList):
 		result = contourList[0]
