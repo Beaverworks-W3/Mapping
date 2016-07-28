@@ -34,10 +34,7 @@ class racecar:
     def turn(self, ranges, side):
 		straightDis = ranges[len(ranges)/2]
 		shortestDis = self.calcDistance(ranges,"F")
-		if straightDis < 0.25:
-				self.drive(-0.5,0.0)
-		else:
-				self.drive(0.5,1.0)
+		self.drive(0.5,1.0)
  
     # Function: drive
     # Parameters: speed (float), angle (float)
@@ -54,7 +51,11 @@ class racecar:
         msg.drive.steering_angle_velocity = 1   # Sets msg angle velocity to 1
         self.DrivePub.publish(msg)              # Publishes the message
 
-
+    def safety(self,range):
+	msg = AckermannDriveStamped()
+	if min(range)<0.05:
+		msg.drive.speed = 0
+		self.SafetyPub.publish(msg)
     
     # Function: calcDistance
     # Parameters: ranges (list), side (string, L or R)
