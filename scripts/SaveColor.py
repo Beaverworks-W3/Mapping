@@ -37,28 +37,40 @@ class SaveColor:
 		#tested numbers
 		mask_g = cv2.inRange(hsv, np.array([50,100,100]), np.array([70, 255, 255]))       
                 contours_g,hierarchy_g = cv2.findContours(mask_g, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-		contoursRGBYP.append(contours_g)
-                #cv2.drawContours(img, contours_g, -1, (0, 255, 0), 3)
+		contoursRGBYP.append((contours_g, "green"))
 		#barley tested
 		mask_r = cv2.inRange(hsv, np.array([112,204,178]), np.array([125, 255, 255]))
 		contours_r, hierarchy_r = cv2.findContours(mask_r, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-		contoursRGBYP.append(contours_r)
- 		#cv2.drawContours(img, contours_r, -1, (120, 0, 0), 3)
+		contoursRGBYP.append((contours_r, "red"))
 		#untested
 		mask_b = cv2.inRange(hsv, np.array([0,100,100]), np.array([30, 255, 255]))
 		contours_b, hierarchy_b = cv2.findContours(mask_r, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-		#cv2.drawContours(img, contours_b, -1, (0, 0, 120), 3)
 
-		mask_y = cv2.inRange(hsv, np.array([25,100,100]), np.array([35, 255, 255]))
+		mask_y = cv2.inRange(hsv, np.array([23,100,160]), np.array([30, 255, 255]))
                 contours_y, hierarchy_y = cv2.findContours(mask_y, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                #cv2.drawContours(img, contours_y, -1, (255, 255, 0), 3)
+		contoursRGBYP.append((contours_y, "yellow"))
 
-		largestContour = contours_g
+		largest_contour = None
+		largest_area = 50
+		current_color = None
 		for i in contoursRGBYP:
-			if cv2.contourArea(i[0]) > largestContour:
-				largestContour = i
-		
-		cv2.drawContours(img, largestContour, -1, (0, 255, 0), 3)
+			#prevent oob exception
+			if len(i[0]) == 0: 
+				continue
+
+			area = cv2.contourArea(i[0][0])
+			if area > largest_area:
+				largest_contour = i[0]
+				largest_area = area
+				current_color = i[1]
+		if largest_contour != None:
+			cv2.drawContours(img, largest_contour, -1, (0, 255, 0), 3)
+			cv2.putText(img, current_color, (0, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (0,0,255), 4)
+		if current_color != None and self.shots_created[current_color] == False:
+			rp.loginfo("creating image for {0}...".format(current_color))
+			cv2.imwrite("{0}.png".format(current_color), img)
+			self.shots_created[current_color] = True
+			self.challenge_pub.publish(current_color)			
 		#add labels?
 		'''
 		try:
