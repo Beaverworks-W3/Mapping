@@ -36,6 +36,7 @@ class colorPicker:
         "racecar.png":"racecar"
         }
         self.colorDic = {
+
         "red":[0,165,100,6,255,255],
         "blue":[120,150,150,135,255,255],
         "yellow":[25, 150, 150,35,255,255],
@@ -47,17 +48,23 @@ class colorPicker:
         self.contourList = []
         img_data = self.bridge.imgmsg_to_cv2(msg)
         for keys in self.colorDic:
-            self.contourCreation(keys,img_data)
+            	self.contourCreation(keys,img_data)
         if len(self.contourList)>0:
-            biggest = self.findBiggest(self.contourList)
+            	biggest = self.findBiggest(self.contourList)
+	else:
+		self.rqt_pub.publish(msg)
+
 	if biggest != None:
-            self.actionSave(biggest,img_data)
+		self.actionSave(biggest,img_data)
+	else:
+		self.rqt_pub.publish(msg)
 
     def actionSave(self,bigContour,img):
         cv2.drawContours(img, bigContour.contour, -1, (0, 255, 0), 3)
         if bigContour.text != "pink":
-            self.saveImg(img,bigContour.text)
-            self.img_pub.publish(bigContour.text)
+		bigContour.text += " " + self.shapeContour(bigContour)
+        	self.saveImg(img,bigContour.text)
+        	self.img_pub.publish(bigContour.text)
         else:
             x,y,w,h = cv2.boundingRect(bigContour.contour)
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -66,6 +73,18 @@ class colorPicker:
             description = self.checkMatch(hsvTest,self.imgDict)
             self.saveImg(img,description)
             self.img_pub.publish(description)
+
+    def shapeContour(self, cnt):
+	epsilon = 0.1*cv2.arcLength(cnt.contour, True)
+	approx = cv2.approxPolyDP(cnt.contour, epsilon, True) 
+	size = len(approx)
+	if(size < 7):
+		return "square"
+	elif(size < 14):
+		return "plus"
+	else:
+		return "circle"
+
 
     def checkMatch(self,hsvUsed,imageDict):
         valList = []
@@ -100,6 +119,8 @@ class colorPicker:
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         s = self.colorDic[color]
         mask = cv2.inRange(hsv, np.array([s[0],s[1],s[2]]), np.array([s[3], s[4], s[5]]))
+	mask = cv2.GaussianBlur(mask, (21,21), 0)
+	mask = cv2.erode(mask, (3, 3), iterations=5)
         contourFound = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         self.contourAppend(self.contourList,contourFound,color)
 
@@ -108,7 +129,7 @@ class colorPicker:
 		for x in contourList:
 			if cv2.contourArea(x.contour)>cv2.contourArea(result.contour):
 				result = x
-		if cv2.contourArea(result.contour)>0:
+		if cv2.contourArea(result.contour)>25000:
 			return result
 		else:
 			return None
