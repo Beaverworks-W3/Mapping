@@ -26,6 +26,7 @@ class colorPicker:
         # create ZED subscriber and challenge publisher
         self.img_sub = rospy.Subscriber("/camera/rgb/image_rect_color", img, self.camCallback)
         self.img_pub = rospy.Publisher("/exploring_challenge", String, queue_size=10)
+	self.rqt_img = rospy.Publisher("/new_pub", img, queue_size=1)
         self.index = 1
         self.contourList=[]
         self.imgDict = {
@@ -35,38 +36,54 @@ class colorPicker:
         "racecar.png":"racecar"
         }
         self.colorDic = {
-        "red":[0,100,100,15,255,255],
+        "red":[165,165,100,6,255,255],
         "blue":[120,150,150,135,255,255],
-        "yellow":[23, 150, 150,37,255,255],
-        "green":[35,100,100,70,255,255],
-        "pink":[340,100,100,360,255,255]
+        "yellow":[23, 150, 150,35,255,255],
+        "green":[40,100,100,70,255,255],
+        "pink":[165,0,0,170,255,255]
         }
 
     def camCallback(self,msg):
         self.contourList = []
         img_data = self.bridge.imgmsg_to_cv2(msg)
         for keys in self.colorDic:
-            self.contourCreation(keys,img_data)
-        if len(contourList)>0:
-            biggest = self.findBiggest(self.contourList)
-        else:
-            biggest = None
-        if biggest != None:
-            self.actionSave(biggest,img_data)
+            	self.contourCreation(keys,img_data)
+        if len(self.contourList)>0:
+            	biggest = self.findBiggest(self.contourList)
+	else:
+		self.rqt_img.publish(msg)
+
+	if biggest != None:
+		self.actionSave(biggest,img_data)
+	else:
+		self.rqt_img.publish(msg)
 
     def actionSave(self,bigContour,img):
         cv2.drawContours(img, bigContour.contour, -1, (0, 255, 0), 3)
         if bigContour.text != "pink":
-            self.saveImg(img,bigContour.text)
-            self.img_pub.publish(bigContour.text)
+		bigContour.text += " " + self.shapeContour(bigContour)
+        	self.saveImg(img,bigContour.text)
+        	self.img_pub.publish(bigContour.text)
         else:
             x,y,w,h = cv2.boundingRect(biggest.contour)
-            hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
             sliced = hsv[x:x+w,y:y+h,:]
             hsvTest = cv2.calcHist(sliced,[0,1],None,[180,256],ranges)
             description = self.checkMatch(hsvTest,self.imgDict)
             self.saveImg(img,description)
             self.img_pub.publish(description)
+
+    def shapeContour(self, cnt):
+	epsilon = 0.1*cv2.arcLength(cnt.contour, True)
+	approx = cv2.approxPolyDP(cnt.contour, epsilon, True) 
+	size = len(approx)
+	if(size < 7):
+		return "square"
+	elif(size < 14):
+		return "plus"
+	else:
+		return "circle"
+
 
     def checkMatch(self,hsvUsed,imageDict):
         valList = []
@@ -92,12 +109,17 @@ class colorPicker:
 		self.index = self.index + 1
 		fileName = "/home/racecar/challenge_photos/"+str(rand)+".jpeg"
 		pic.save(fileName,"jpeg")
+		published = cv2.imread(fileName)
+		published_msg = self.bridge.cv2_to_imgmsg(published)
 		self.img_pub.publish(text)
+		self.rqt_img.publish(published_msg)
 
     def contourCreation(self,color,img):
-        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         s = self.colorDic[color]
         mask = cv2.inRange(hsv, np.array([s[0],s[1],s[2]]), np.array([s[3], s[4], s[5]]))
+	mask = cv2.GaussianBlur(mask, (21,21), 0)
+	mask = cv2.erode(mask, (3, 3), iterations=5)
         contourFound = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         self.contourAppend(self.contourList,contourFound,color)
 
@@ -106,7 +128,7 @@ class colorPicker:
 		for x in contourList:
 			if cv2.contourArea(x.contour)>cv2.contourArea(result.contour):
 				result = x
-		if cv2.contourArea(result.contour)>0:
+		if cv2.contourArea(result.contour)>25000:
 			return result
 		else:
 			return None
@@ -123,5 +145,5 @@ class contours:
 
 if __name__ == "__main__":
     rospy.init_node("save_color")
-    node = saveColor()
+    node = colorPicker()
     rospy.spin()
