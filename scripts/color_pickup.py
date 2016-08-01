@@ -18,15 +18,16 @@ srange = [0,256]
 ranges = hrange + srange
 
 class colorPicker:
-    def __init__(self):
+    def __init__(self,state):
 
         # bridges ZED camera and cv2
         self.bridge = CvBridge()
 
         # create ZED subscriber and challenge publisher
-        self.img_sub = rospy.Subscriber("/camera/rgb/image_rect_color", img, self.camCallback)
-        self.img_pub = rospy.Publisher("/exploring_challenge", String, queue_size=10)
-        self.rqt_pub = rospy.Publisher("/video", img, queue_size=10)
+	if state == "yes":
+        	self.img_sub = rospy.Subscriber("/camera/rgb/image_rect_color", img, self.camCallback)
+        	self.img_pub = rospy.Publisher("/exploring_challenge", String, queue_size=10)
+        	self.rqt_pub = rospy.Publisher("/video", img, queue_size=10)
         self.index = 1
         self.contourList=[]
         self.imgDict = {
@@ -38,10 +39,10 @@ class colorPicker:
         self.colorDic = {
 
         "red":[0,165,100,6,255,255],
-        "blue":[100,50,50,135,255,255],
+        "blue":[100,150,150,135,255,255],
         "yellow":[25, 150, 150,30,255,255],
-        "green":[60,100,100,70,255,255],
-        "pink":[165,0,0,170,255,255]
+        "green":[55,100,100,75,255,255],
+        "pink":[165,100,100,170,255,255]
         }
 
     def camCallback(self,msg):
@@ -69,7 +70,12 @@ class colorPicker:
         else:
             x,y,w,h = cv2.boundingRect(bigContour.contour)
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-            sliced = hsv[y:y+h,x:x+w,:]
+
+	    padding = 30
+            sliced = hsv[y+padding:y+h-padding,x+padding:x+w-padding,:]
+	    mask = cv2.inRange(sliced, np.array([165,100,100]), np.array([170, 255, 255]))
+	    pink = cv2.bitwise_not(mask)
+	    sliced = cv2.bitwise_and(sliced, sliced, mask=pink)
             hsvTest = cv2.calcHist(sliced,[0,1],None,[180,256],ranges)
             description = self.checkMatch(hsvTest,self.imgDict)
             self.saveImg(img,description)
@@ -94,7 +100,7 @@ class colorPicker:
             readIn = cv2.imread(keys)
             convert = cv2.cvtColor(readIn, cv2.COLOR_BGR2HSV)
             convert = cv2.calcHist(convert,[0,1],None,[180,256],ranges)
-            simVal = cv2.compareHist(hsvUsed,convert,cv2.cv.CV_COMP_CORREL)
+            simVal = cv2.compareHist(hsvUsed,convert,cv2.cv.CV_COMP_CHISQR)
             valList.append((simVal,imageDict[keys]))
         result = valList[0]
         for i in range(0,len(valList)):
@@ -131,7 +137,7 @@ class colorPicker:
 		for x in contourList:
 			if cv2.contourArea(x.contour)>cv2.contourArea(result.contour):
 				result = x
-		if cv2.contourArea(result.contour)>25000:
+		if cv2.contourArea(result.contour)>2500:
 			return result
 		else:
 			return None
@@ -148,5 +154,5 @@ class contours:
 
 if __name__ == "__main__":
     rospy.init_node("save_color")
-    node = colorPicker()
+    node = colorPicker("yes")
     rospy.spin()
