@@ -1,3 +1,4 @@
+#!usr/bin/env python
 import rospy as rp
 import numpy as np
 import cv2
@@ -31,15 +32,20 @@ class SaveColor:
 
 	def process_img(self,img):
 		hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-		
+
 		contoursRGBYP = []
 
 		#tested numbers
-		mask_g = cv2.inRange(hsv, np.array([50,100,100]), np.array([70, 255, 255]))       
-                contours_g,hierarchy_g = cv2.findContours(mask_g, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+		mask_g = cv2.inRange(hsv, np.array([50,100,100]), np.array([70, 255, 255]))
+
+                mask_g = cv2.GaussianBlur(mask_g, (21, 21), 0)
+		mask_g = cv2.erode(mask_g, (3,3), iterations=5)
+		contours_g,hierarchy_g = cv2.findContours(mask_g, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		contoursRGBYP.append((contours_g, "green"))
 		#barley tested
-		mask_r = cv2.inRange(hsv, np.array([112,204,178]), np.array([125, 255, 255]))
+		mask_r = cv2.inRange(hsv, np.array([100,204,178]), np.array([130, 255, 255]))
+		mask_r = cv2.GaussianBlur(mask_r, (21,21), 0)
+		mask_r = cv2.GaussianBlur(mask_r, (21,21), 0)
 		contours_r, hierarchy_r = cv2.findContours(mask_r, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		contoursRGBYP.append((contours_r, "red"))
 		#untested
@@ -51,7 +57,7 @@ class SaveColor:
 		contoursRGBYP.append((contours_y, "yellow"))
 
 		largest_contour = None
-		largest_area = 50
+		largest_area = 150
 		current_color = None
 		for i in contoursRGBYP:
 			#prevent oob exception

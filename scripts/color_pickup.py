@@ -83,7 +83,7 @@ class colorPicker:
     def saveImg(self,img,text):
 		cv2.imwrite("troll.jpeg",img)
 		pic = Image.open("troll.jpeg")
-		font = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf",25)
+		font = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf",50)
 		draw = ImageDraw.Draw(pic)
 		draw.text((0, 0),text,(255,255,0),font=font)
 		rand = self.index
