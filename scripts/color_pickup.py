@@ -51,13 +51,13 @@ class colorPicker:
             	self.contourCreation(keys,img_data)
         if len(self.contourList)>0:
             	biggest = self.findBiggest(self.contourList)
-	else:
-		self.rqt_pub.publish(msg)
+    	else:
+    		self.rqt_pub.publish(msg)
 
-	if biggest != None:
-		self.actionSave(biggest,img_data)
-	else:
-		self.rqt_pub.publish(msg)
+    	if biggest != None:
+    		self.actionSave(biggest,img_data)
+    	else:
+    		self.rqt_pub.publish(msg)
 
     def actionSave(self,bigContour,img):
         cv2.drawContours(img, bigContour.contour, -1, (0, 255, 0), 3)
@@ -98,7 +98,7 @@ class colorPicker:
             valList.append((simVal,imageDict[keys]))
         result = valList[0]
         for i in range(0,len(valList)):
-            if valList[i][0]<result[0]:
+            if valList[i][0]>result[0]:
                 result = valList[i]
         return result[1]
 

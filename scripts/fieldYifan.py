@@ -10,7 +10,7 @@ import time
 import numpy as np
 
 class getAround:
-    def __init__(self):
+    def __init__(self,y):
 		# create Subscriber and initialize racecar class
         self.scanResult = rospy.Subscriber("/scan",LaserScan,self.callBack)
         self.pub_goal = rospy.Publisher("~potentialFieldGoal", PointStamped, queue_size=1)
@@ -23,7 +23,7 @@ class getAround:
         self.STEERING_CONSTANT = 1.0
         self.SPEED_CONSTANT = 0.06
         self.x_boost = 20
-        self.y_boost = 0
+        self.y_boost = y
         self.boost_constant = 0.02
 
 
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     rospy.init_node("potential_field_node")
 
     # creates getAround object
-    node = getAround()
+    node = getAround(0)
 
     # keeps node running
     rospy.spin()
