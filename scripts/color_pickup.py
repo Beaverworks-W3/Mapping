@@ -38,8 +38,8 @@ class colorPicker:
         self.colorDic = {
 
         "red":[0,165,100,6,255,255],
-        "blue":[120,150,150,135,255,255],
-        "yellow":[25, 150, 150,35,255,255],
+        "blue":[100,50,50,135,255,255],
+        "yellow":[25, 150, 150,30,255,255],
         "green":[60,100,100,70,255,255],
         "pink":[165,0,0,170,255,255]
         }
@@ -63,6 +63,7 @@ class colorPicker:
         cv2.drawContours(img, bigContour.contour, -1, (0, 255, 0), 3)
         if bigContour.text != "pink":
 		bigContour.text += " " + self.shapeContour(bigContour)
+		print(bigContour.text)
         	self.saveImg(img,bigContour.text)
         	self.img_pub.publish(bigContour.text)
         else:
@@ -75,15 +76,16 @@ class colorPicker:
             self.img_pub.publish(description)
 
     def shapeContour(self, cnt):
-	epsilon = 0.1*cv2.arcLength(cnt.contour, True)
+	epsilon = 0.021*cv2.arcLength(cnt.contour, True)
 	approx = cv2.approxPolyDP(cnt.contour, epsilon, True) 
 	size = len(approx)
+	print(size)
 	if(size < 7):
 		return "square"
-	elif(size < 14):
-		return "cross"
-	else:
+	elif(size < 11):
 		return "circle"
+	else:
+		return "cross"
 
 
     def checkMatch(self,hsvUsed,imageDict):
