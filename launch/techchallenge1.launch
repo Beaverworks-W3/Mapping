@@ -1,6 +1,7 @@
 <launch>
 	<include file="$(find racecar)/launch/teleop.launch" />
-        <include file="$(find zed_wrapper)/launch/zed.launch" />
+	<include file="$(find zed_wrapper)/launch/zed.launch" />
+	
 	<node name="FieldYifan" pkg="Week3" type="fieldYifan.py" />
-	<node name="SaveColor" pkg="Week3" type="color_pickup.py" />
+	<node name="color_pickup" pkg="Week3" type="color_pickup.py" />
 </launch>

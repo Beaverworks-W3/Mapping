@@ -14,17 +14,17 @@ class getAround:
 		# create Subscriber and initialize racecar class
         self.scanResult = rospy.Subscriber("/scan",LaserScan,self.callBack)
         self.pub_goal = rospy.Publisher("~potentialFieldGoal", PointStamped, queue_size=1)
-        self.tfResult = rospy.Subscriber("/tf",TFMessage,self.adjust)
+        #self.tfResult = rospy.Subscriber("/tf",TFMessage,self.adjust)
 
         # create racecar object
         self.car = racecar()
 
         # VARIABLES
         self.STEERING_CONSTANT = 1.0
-        self.SPEED_CONSTANT = 0.1
-        self.x_boost = 25
+        self.SPEED_CONSTANT = 0.06
+        self.x_boost = 20
         self.y_boost = 0
-        self.boost_constant = 0.04
+        self.boost_constant = 0.02
 
 
     '''
@@ -65,11 +65,11 @@ class getAround:
     '''
     Adjusts the y_boost value to ensure that the car explores the entire space.
     '''
-    def adjust(self,msg):
-        transformation = msg.transforms
-        movingComp = transformation[0].transform
-        vector = movingComp.translation
-        self.y_boost = -5/(1+5*math.exp(-vector.y))
+    #def adjust(self,msg):
+     #   transformation = msg.transforms
+      #  movingComp = transformation[0].transform
+       # vector = movingComp.translation
+        #self.y_boost = -5/(1+5*math.exp(-vector.y))
 
 if __name__ == "__main__":
     # initialize the ROS client API, giving the default node name
