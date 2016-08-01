@@ -16,7 +16,7 @@ class getAround:
 		# create Subscriber and initialize racecar class
 		self.scanResult = rospy.Subscriber("/scan",LaserScan,self.callBack)
 		self.car = racecar()
-	
+
 	def callBack(self,msg):
 
 		'''
@@ -43,10 +43,15 @@ class getAround:
 		x_net = 0
 		y_net = 0
 
+<<<<<<< HEAD
 		for i in range (0,1076):				
+=======
+		for i in range (0,720):
+>>>>>>> 3bbe586e5957a47e39449a9db1f9b169fd372378
 			distance = resultList[i]
 			angle = (i - 538)/4
 
+<<<<<<< HEAD
 			magnitude = -MAGNITUDE_CONSTANT/(distance * distance)			# magnitude changes x_net and y_net
 			
 			x_net += np.cos(math.radians(angle)) * magnitude
@@ -59,6 +64,20 @@ class getAround:
 
 		steering_angle = STEERING_CONSTANT * math.atan2(y_net, x_net) * np.sign(x_net)
 		speed = SPEED_CONSTANT * math.sqrt(x_net*x_net + y_net*y_net) * np.sign(x_net)
+=======
+			magnitude = -.05/(distance * distance)
+
+			x_net += np.cos(math.radians(angle)) * magnitude
+			y_net += np.sin(math.radians(angle)) * magnitude
+
+
+		x_net += 35.0
+
+		print("X_NET: %f Y_NET: %f"%(x_net,y_net))
+
+		steering_angle = 1.0 * math.atan2(y_net,x_net) * np.sign(x_net)
+		speed = .08 * math.sqrt(x_net*x_net + y_net*y_net) * np.sign(x_net)
+>>>>>>> 3bbe586e5957a47e39449a9db1f9b169fd372378
 
 		
 		if(speed < 0):

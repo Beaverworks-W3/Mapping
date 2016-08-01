@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 import rospy
 import math
@@ -27,8 +26,8 @@ class getAround:
 		SPEED_CONSTANT = .05
 
 		'''
-		MAGNITUDE_CONSTANT = .03
-		FORWARD_FORCE = 55.0
+		MAGNITUDE_CONSTANT = .05
+		FORWARD_FORCE = 60.0
 		STEERING_CONSTANT = .8
 		SPEED_CONSTANT = .04
 		

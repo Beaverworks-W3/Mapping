@@ -22,18 +22,7 @@ class saveColor:
 		self.pub = rospy.Publisher("/images", img, queue_size=1)
 		self.img_pub = rospy.Publisher("/exploring_challenge", String, queue_size=1)
 		self.index = 1
-		self.racecar = cv2.imread('racecar.png')
-		self.racecar = cv2.cvtColor(self.racecar, cv2.COLOR_BGR2HSV)
-		self.racecar = cv2.calcHist(self.racecar,[0,1],None,[180,256],ranges)
-		self.ari = cv2.imread('ari.png')
-		self.ari = cv2.cvtColor(self.ari, cv2.COLOR_BGR2HSV)
-		self.ari = cv2.calcHist(self.ari,[0,1],None,[180,256],ranges)
-		self.sertac = cv2.imread('professor karaman.png')
-		self.sertac = cv2.cvtColor(self.sertac, cv2.COLOR_BGR2HSV)
-		self.sertac = cv2.calcHist(self.sertac,[0,1],None,[180,256],ranges)
-		self.cat = cv2.imread('cat.png')
-		self.cat = cv2.cvtColor(self.cat, cv2.COLOR_BGR2HSV)
-		self.cat = cv2.calcHist(self.cat,[0,1],None,[180,256],ranges)
+		
 	def camCallback(self,msg):
 		print("Image recieved! Processing...")	
 		img_data = self.bridge.imgmsg_to_cv2(msg)
@@ -78,7 +67,7 @@ class saveColor:
 			#cv2.waitKey(0)
 			if biggest.text != "pink":
 				self.saveImg(img,biggest.text)
-			else:
+			elif biggest.text == "lol":
 				x,y,w,h = cv2.boundingRect(biggest.contour)
 				sliced = hsv[x:x+w,y:y+h,:]
 				hsvTest = cv2.calcHist(sliced,[0,1],None,[180,256],ranges)
