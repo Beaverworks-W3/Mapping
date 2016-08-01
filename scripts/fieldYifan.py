@@ -14,17 +14,17 @@ class getAround:
 		# create Subscriber and initialize racecar class
         self.scanResult = rospy.Subscriber("/scan",LaserScan,self.callBack)
         self.pub_goal = rospy.Publisher("~potentialFieldGoal", PointStamped, queue_size=1)
-        self.tfResult = rospy.Subscriber("/tf",TFMessage,self.adjust)
+        #self.tfResult = rospy.Subscriber("/tf",TFMessage,self.adjust)
 
         # create racecar object
         self.car = racecar()
 
         # VARIABLES
         self.STEERING_CONSTANT = 1.0
-        self.SPEED_CONSTANT = 0.08
-        self.x_boost = 25
+        self.SPEED_CONSTANT = 0.06
+        self.x_boost = 20
         self.y_boost = 0
-        self.boost_constant = 0.04
+        self.boost_constant = 0.02
 
 
     '''
