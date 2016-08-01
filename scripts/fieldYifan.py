@@ -24,7 +24,7 @@ class getAround:
         self.SPEED_CONSTANT = 0.1
         self.x_boost = 25
         self.y_boost = 0
-        self.boost_constant = 0.08
+        self.boost_constant = 0.04
 
 
     '''

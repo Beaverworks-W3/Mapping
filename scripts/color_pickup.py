@@ -26,6 +26,7 @@ class colorPicker:
         # create ZED subscriber and challenge publisher
         self.img_sub = rospy.Subscriber("/camera/rgb/image_rect_color", img, self.camCallback)
         self.img_pub = rospy.Publisher("/exploring_challenge", String, queue_size=10)
+        self.rqt_pub = rospy.Publisher("/video", img_msg, queue_size=10)
         self.index = 1
         self.contourList=[]
         self.imgDict = {
@@ -35,9 +36,9 @@ class colorPicker:
         "racecar.png":"racecar"
         }
         self.colorDic = {
-        "red":[0,100,100,15,255,255],
+        "red":[0,165,100,6,255,255],
         "blue":[120,150,150,135,255,255],
-        "yellow":[23, 150, 150,37,255,255],
+        "yellow":[23, 150, 150,35,255,255],
         "green":[35,100,100,70,255,255],
         "pink":[340,100,100,360,255,255]
         }
@@ -47,11 +48,8 @@ class colorPicker:
         img_data = self.bridge.imgmsg_to_cv2(msg)
         for keys in self.colorDic:
             self.contourCreation(keys,img_data)
-        if len(contourList)>0:
+        if len(self.contourList)>0:
             biggest = self.findBiggest(self.contourList)
-        else:
-            biggest = None
-        if biggest != None:
             self.actionSave(biggest,img_data)
 
     def actionSave(self,bigContour,img):
@@ -61,7 +59,7 @@ class colorPicker:
             self.img_pub.publish(bigContour.text)
         else:
             x,y,w,h = cv2.boundingRect(biggest.contour)
-            hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
             sliced = hsv[x:x+w,y:y+h,:]
             hsvTest = cv2.calcHist(sliced,[0,1],None,[180,256],ranges)
             description = self.checkMatch(hsvTest,self.imgDict)
@@ -92,10 +90,13 @@ class colorPicker:
 		self.index = self.index + 1
 		fileName = "/home/racecar/challenge_photos/"+str(rand)+".jpeg"
 		pic.save(fileName,"jpeg")
+        published = cv2.imread(fileName)
+        published_msg = self.bridge.cv2_to_imgmsg(published)
+        rqt_pub.publish(published_msg)
 		self.img_pub.publish(text)
 
     def contourCreation(self,color,img):
-        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         s = self.colorDic[color]
         mask = cv2.inRange(hsv, np.array([s[0],s[1],s[2]]), np.array([s[3], s[4], s[5]]))
         contourFound = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -123,5 +124,5 @@ class contours:
 
 if __name__ == "__main__":
     rospy.init_node("save_color")
-    node = saveColor()
+    node = colorPicker()
     rospy.spin()
