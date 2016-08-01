@@ -40,7 +40,7 @@ class colorPicker:
         "red":[0,165,100,6,255,255],
         "blue":[120,150,150,135,255,255],
         "yellow":[25, 150, 150,35,255,255],
-        "green":[35,100,100,70,255,255],
+        "green":[60,100,100,70,255,255],
         "pink":[165,0,0,170,255,255]
         }
 
@@ -81,7 +81,7 @@ class colorPicker:
 	if(size < 7):
 		return "square"
 	elif(size < 14):
-		return "plus"
+		return "cross"
 	else:
 		return "circle"
 
