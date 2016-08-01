@@ -16,6 +16,7 @@ seen = 1
 color = "red"
 class color_turn:
     def __init__(self):
+        print("inited")
         self.img_sub = rospy.Subscriber("/camera/rgb/image_rect_color", img, self.camCallback)
         self.colorDic = {
         "red":[0,165,100,6,255,255],
@@ -24,6 +25,7 @@ class color_turn:
         self.car = racecar()
         self.picker = colorPicker()
     def camCallback(self,msg):
+        print("processing image")
         self.picker.contourList = []
         img_data = self.picker.bridge.imgmsg_to_cv2(msg)
         for keys in self.colorDic:
