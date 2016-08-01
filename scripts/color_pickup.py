@@ -26,7 +26,8 @@ class colorPicker:
         # create ZED subscriber and challenge publisher
         self.img_sub = rospy.Subscriber("/camera/rgb/image_rect_color", img, self.camCallback)
         self.img_pub = rospy.Publisher("/exploring_challenge", String, queue_size=10)
-	self.rqt_img = rospy.Publisher("/new_pub", img, queue_size=1)
+
+        self.rqt_pub = rospy.Publisher("/video", img, queue_size=10)
         self.index = 1
         self.contourList=[]
         self.imgDict = {
@@ -36,11 +37,12 @@ class colorPicker:
         "racecar.png":"racecar"
         }
         self.colorDic = {
-        "red":[165,165,100,6,255,255],
+
+        "red":[0,165,100,6,255,255],
         "blue":[120,150,150,135,255,255],
         "yellow":[23, 150, 150,35,255,255],
-        "green":[40,100,100,70,255,255],
-        "pink":[165,0,0,170,255,255]
+        "green":[35,100,100,70,255,255],
+        "pink":[340,100,100,360,255,255]
         }
 
     def camCallback(self,msg):
@@ -51,12 +53,12 @@ class colorPicker:
         if len(self.contourList)>0:
             	biggest = self.findBiggest(self.contourList)
 	else:
-		self.rqt_img.publish(msg)
+		self.rqt_pub.publish(msg)
 
 	if biggest != None:
 		self.actionSave(biggest,img_data)
 	else:
-		self.rqt_img.publish(msg)
+		self.rqt_pub.publish(msg)
 
     def actionSave(self,bigContour,img):
         cv2.drawContours(img, bigContour.contour, -1, (0, 255, 0), 3)
@@ -67,7 +69,7 @@ class colorPicker:
         else:
             x,y,w,h = cv2.boundingRect(biggest.contour)
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-            sliced = hsv[x:x+w,y:y+h,:]
+            sliced = hsv[y:y+h, x:x+w, :]
             hsvTest = cv2.calcHist(sliced,[0,1],None,[180,256],ranges)
             description = self.checkMatch(hsvTest,self.imgDict)
             self.saveImg(img,description)
@@ -95,24 +97,26 @@ class colorPicker:
             valList.append((simVal,imageDict[keys]))
         result = valList[0]
         for i in range(0,len(valList)):
-            if valList[i][0]>result[0]:
+            if valList[i][0]<result[0]:
                 result = valList[i]
         return result[1]
 
     def saveImg(self,img,text):
 		cv2.imwrite("troll.jpeg",img)
 		pic = Image.open("troll.jpeg")
-		font = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf",25)
+		font = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf",50)
 		draw = ImageDraw.Draw(pic)
 		draw.text((0, 0),text,(255,255,0),font=font)
 		rand = self.index
 		self.index = self.index + 1
 		fileName = "/home/racecar/challenge_photos/"+str(rand)+".jpeg"
 		pic.save(fileName,"jpeg")
+
 		published = cv2.imread(fileName)
 		published_msg = self.bridge.cv2_to_imgmsg(published)
+		self.rqt_pub.publish(published_msg)
 		self.img_pub.publish(text)
-		self.rqt_img.publish(published_msg)
+
 
     def contourCreation(self,color,img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)

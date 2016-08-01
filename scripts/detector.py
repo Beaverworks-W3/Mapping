@@ -16,40 +16,35 @@ srange = [0,256]
 ranges = hrange+srange  
 class saveColor:
 	def __init__(self):
+		print("initiated")
 		self.bridge = CvBridge()
 		self.img_sub = rospy.Subscriber("/camera/rgb/image_rect_color", img, self.camCallback)
-		self.img_pub = rospy.Publisher("/exploring_challenge", String, queue_size=10)
+		self.pub = rospy.Publisher("/images", img, queue_size=1)
+		self.img_pub = rospy.Publisher("/exploring_challenge", String, queue_size=1)
 		self.index = 1
-		self.racecar = cv2.imread('racecar.png')
-		self.racecar = cv2.cvtColor(self.racecar, cv2.COLOR_BGR2HSV)
-		self.racecar = cv2.calcHist(self.racecar,[0,1],None,[180,256],ranges)
-		self.ari = cv2.imread('ari.png')
-		self.ari = cv2.cvtColor(self.ari, cv2.COLOR_BGR2HSV)
-		self.ari = cv2.calcHist(self.ari,[0,1],None,[180,256],ranges)
-		self.sertac = cv2.imread('professor karaman.png')
-		self.sertac = cv2.cvtColor(self.sertac, cv2.COLOR_BGR2HSV)
-		self.sertac = cv2.calcHist(self.sertac,[0,1],None,[180,256],ranges)
-		self.cat = cv2.imread('cat.png')
-		self.cat = cv2.cvtColor(self.cat, cv2.COLOR_BGR2HSV)
-		self.cat = cv2.calcHist(self.cat,[0,1],None,[180,256],ranges)
+		
 	def camCallback(self,msg):
-		rospy.loginfo("Image recieved! Processing...")	
+		print("Image recieved! Processing...")	
 		img_data = self.bridge.imgmsg_to_cv2(msg)
 		self.processImg(img_data)
 		time.sleep(1)
-        #processed_img = self.bridge.cv2_to_imgmsg(processed_img_cv2, "bgr8")
+        
 	def processImg(self,img):
+		print("processing")
 		hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 		contourList = []
-		maskG = cv2.inRange(hsv, np.array([35,100,100]), np.array([70, 255, 255]))       
-		maskR1 = cv2.inRange(hsv, np.array([0,150,100]), np.array([10, 255, 200]))   
-		maskR2 = cv2.inRange(hsv, np.array([160,150,100]), np.array([180,255,200]))
-		maskR = maskR1 + maskR2
-		maskB = cv2.inRange(hsv, np.array([100,100,100]), np.array([130, 255, 255]))   
-		maskY = cv2.inRange(hsv, np.array([23,100,160]), np.array([30, 255, 255]))   
+		maskG = cv2.inRange(hsv, np.array([35,100,100]), np.array([70, 255, 255])) 
+		maskG = self.blur(maskG)      
+		maskR = cv2.inRange(hsv, np.array([0,100,100]), np.array([15, 255, 255]))   
+		maskR = self.blur(maskR)
+		maskB = cv2.inRange(hsv, np.array([90,150,150]), np.array([130, 255, 255])) 
+		maskB = self.blur(maskB)  
+		maskY = cv2.inRange(hsv, np.array([23,100,160]), np.array([30, 255, 255]))  
+		maskY = self.blur(maskY) 
 		maskP1 = cv2.inRange(hsv, np.array([0,50,230]), np.array([10, 150, 255]))  
 		maskP2 = cv2.inRange(hsv, np.array([150,50,230]), np.array([180,150,255]))  
 		maskP = maskP1+maskP2 
+		maskP = self.blur(maskP)
 		contoursG = cv2.findContours(maskG, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		contoursR = cv2.findContours(maskR, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		contoursB = cv2.findContours(maskB, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -72,7 +67,7 @@ class saveColor:
 			#cv2.waitKey(0)
 			if biggest.text != "pink":
 				self.saveImg(img,biggest.text)
-			else:
+			elif biggest.text == "lol":
 				x,y,w,h = cv2.boundingRect(biggest.contour)
 				sliced = hsv[x:x+w,y:y+h,:]
 				hsvTest = cv2.calcHist(sliced,[0,1],None,[180,256],ranges)
@@ -91,6 +86,8 @@ class saveColor:
 					self.saveImg(img,"cat")
 	def saveImg(self,img,text):
 		cv2.imwrite("troll.jpeg",img)
+		processed_img = self.bridge.cv2_to_imgmsg(img, "bgr8")
+		self.pub.publish(processed_img)
 		pic = Image.open("troll.jpeg")
 		font = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf",25)
 		draw = ImageDraw.Draw(pic)
@@ -105,7 +102,7 @@ class saveColor:
 		for x in contourList:
 			if cv2.contourArea(x.contour)>cv2.contourArea(result.contour):
 				result = x
-		if cv2.contourArea(result.contour)>0:
+		if cv2.contourArea(result.contour)>2000:
 			return result
 		else:
 			return None
@@ -113,6 +110,9 @@ class saveColor:
 		for x in contour[0]:
 			appendedStuff = contours(x,color)
 			contourList.append(appendedStuff)
+	def blur(self,mask):
+		mask = cv2.GaussianBlur(mask,(21,21),0)
+		return cv2.erode(mask,(3,3),iterations=5)
 class contours:
 	def __init__(self,contour,text):
 		self.contour = contour

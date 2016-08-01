@@ -25,8 +25,8 @@ from ackermann_msgs.msg import AckermannDriveStamped
 class racecar:
 
     def __init__(self):
-        self.DrivePub = rospy.Publisher('/vesc/ackermann_cmd_mux/input/navigation', AckermannDriveStamped,queue_size=10)
-        self.SafetyPub = rospy.Publisher('vesc/ackermann_cmd_mux/input/safety', AckermannDriveStamped,queue_size=10)        
+        self.DrivePub = rospy.Publisher('/vesc/ackermann_cmd_mux/input/navigation', AckermannDriveStamped,queue_size=1)
+        self.SafetyPub = rospy.Publisher('vesc/ackermann_cmd_mux/input/safety', AckermannDriveStamped,queue_size=1)        
         self.errorDif = 0
         self.bothWallPD = 0
         # Add any other topic variables here
