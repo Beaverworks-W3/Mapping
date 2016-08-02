@@ -102,17 +102,18 @@ class colorPicker:
             self.img_pub.publish(description)
 
     def shapeContour(self, cnt):
-	epsilon = 0.1*cv2.arcLength(cnt.contour, True)
+	epsilon = 0.021*cv2.arcLength(cnt.contour, True)
 	approx = cv2.approxPolyDP(cnt.contour, epsilon, True) 
 
 	
 	size = len(approx)
-	if(size < 7):
+	print(size)
+	if(size < 6):
 		return "square"
-	elif(size < 14):
-		return "plus"
-	else:
+	elif(size < 13):
 		return "circle"
+	else:
+		return "cross"
 
 
 
@@ -141,8 +142,9 @@ class colorPicker:
 	for i in range(0,len(valList)):
 		if valList[i][0]>result[0]:
 			result = valList[i]
-
+	print(result[1])
 	return result[1]
+	
 
     def saveImg(self,img,text):
     	cv2.imwrite("troll.jpeg",img)
@@ -155,7 +157,7 @@ class colorPicker:
     	fileName = "/home/racecar/challenge_photos/"+str(rand)+".jpeg"
     	pic.save(fileName,"jpeg")
         published = cv2.imread(fileName)
-        published_msg = self.bridge.cv2_to_imgmsg(published)
+        published_msg = self.bridge.cv2_to_imgmsg(published, "bgr8")
         self.rqt_pub.publish(published_msg)
 	self.img_pub.publish(text)
 
@@ -173,10 +175,11 @@ class colorPicker:
 		for x in contourList:
 			if cv2.contourArea(x.contour)>cv2.contourArea(result.contour):
 				result = x
-		if cv2.contourArea(result.contour)>2500:
+		if cv2.contourArea(result.contour)>25000:
 			return result
 		else:
 			return None
+			print("none")
 
     def contourAppend(self,contourList,contour,color):
 		for x in contour[0]:

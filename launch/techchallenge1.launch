@@ -3,5 +3,5 @@
 	<include file="$(find zed_wrapper)/launch/zed.launch" />
 	
 	<node name="FieldYifan" pkg="Week3" type="fieldYifan.py" />
-	<node name="color_pickup" pkg="Week3" type="color_pickup.py" />
+	<node name="color_pickup" pkg="Week3" type="color_pickup.py",output="screen" />
 </launch>
