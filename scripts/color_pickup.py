@@ -65,19 +65,21 @@ class colorPicker:
     		bigContour.text += " " + self.shapeContour(bigContour)
     		print(bigContour.text)
         	self.saveImg(img,bigContour.text)
-        	self.img_pub.publish(bigContour.text)
+		self.img_pub.publish(bigContour.text)
         else:
             x,y,w,h = cv2.boundingRect(bigContour.contour)
-            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+	    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     	    padding = 30
             sliced = hsv[y+padding:y+h-padding,x+padding:x+w-padding,:]
-    	    #mask = cv2.inRange(sliced, np.array([165,100,100]), np.array([170, 255, 255]))
-    	    #pink = cv2.bitwise_not(mask)
-    	    #sliced = cv2.bitwise_and(sliced, sliced, mask=pink)
+	    slicedGray = hsv[y+padding:y+h-padding,x+padding:x+w-padding]
+    	    mask = cv2.inRange(sliced, np.array([165,100,100]), np.array([170, 255, 255]))
+    	    pink = cv2.bitwise_not(mask)
+    	    sliced = cv2.bitwise_and(slicedGray, sliced, mask=pink)
             hsvTest = cv2.calcHist(sliced,[0,1],None,[180,256],ranges)
             description = self.checkMatch(hsvTest,self.imgDict)
-            self.saveImg(img,description)
-            self.img_pub.publish(description)
+            self.saveImg(sliced,description)
+	    self.img_pub.publish(description)
 
     def shapeContour(self, cnt):
     	epsilon = 0.021*cv2.arcLength(cnt.contour, True)
@@ -119,7 +121,7 @@ class colorPicker:
         published = cv2.imread(fileName)
         published_msg = self.bridge.cv2_to_imgmsg(published)
         self.rqt_pub.publish(published_msg)
-	    self.img_pub.publish(text)
+	self.img_pub.publish(text)
 
     def contourCreation(self,color,img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)

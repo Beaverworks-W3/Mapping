@@ -8,13 +8,17 @@ from cv_bridge import CvBridge
 from fieldYifan import getAround
 from racecar import racecar
 from color_pickup import colorPicker, contours
+import PIL
+from PIL import ImageFont
+from PIL import Image
+from PIL import ImageDraw
 
 #state = 1 => driving towards the blob state = 2 => making the turn
-global state = 1
+
 #seen = 1 => haven't finished the turn yet. 2=> finished the turn
-global seen = 1
+
 #default color is red
-global color = "red"
+
 class color_turn:
     def __init__(self):
         print("inited")
@@ -23,34 +27,43 @@ class color_turn:
         self.seen = 1
         self.color = "red"
         self.notTurned = True
+	self.index = 0
         self.img_sub = rospy.Subscriber("/camera/rgb/image_rect_color", img, self.camCallback)
         self.colorDic = {
         "red":[0,165,100,6,255,255],
-        "green":[60,100,100,70,255,255],
+        "green":[40,100,40,88,255,255],
         }
         self.car = racecar()
         self.field = None
-        self.picker = colorPicker("no")
 
     def camCallback(self,msg):
-        print("processing image")
+        
         self.contourList = []
         img_data = self.bridge.imgmsg_to_cv2(msg)
         for keys in self.colorDic:
             self.contourCreation(keys,img_data)
         if len(self.contourList)>0:
-	        print("got to picker")
-            biggest = self.findBiggest(self.contourList)
+	        
+                biggest = self.findBiggest(self.contourList)
+	else:
+		biggest = None
         if biggest != None:
-	        print("found")
+	    
             x,y,w,h = cv2.boundingRect(biggest.contour)
+	    cv2.drawContours(img_data, biggest.contour, -1, (0, 255, 0), 3)
+	   
             if w*h > 20000: #start turning
+		if self.state == 1:
+			print("too big")
                 self.state = 2
                 self.color = biggest.text
             else:
-                error = x+w/2-640
-                steering = -0.01*error
-                self.car.drive(0.5,steering)
+		if self.state == 1:
+			print("driving towards the blob")
+                	error = x+w/2-640
+			self.saveImg(img_data,str(error))
+                	steering = -0.0005*error
+                	self.car.drive(0.5,steering)
         else:
     	    print("doesn't see anything")
     	    if self.state == 2:
@@ -69,7 +82,24 @@ class color_turn:
         if self.field != None:
             if self.seen == 2 and self.notTurned == True:
                 self.notTurned = False
-                self.field.y_boost = -self.field.y_boost
+                self.field.y_boost = -self.field.y_boost * 2
+
+    def contourAppend(self,contourList,contour,color):
+		for x in contour[0]:
+			appendedStuff = contours(x,color)
+			contourList.append(appendedStuff)
+
+    def saveImg(self,img,text):
+    	cv2.imwrite("troll.jpeg",img)
+    	pic = Image.open("troll.jpeg")
+    	font = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf",50)
+    	draw = ImageDraw.Draw(pic)
+    	draw.text((0, 0),text,(255,255,0),font=font)
+    	rand = self.index
+    	self.index = self.index + 1
+    	fileName = "/home/racecar/turn_photos/"+str(rand)+".jpeg"
+    	pic.save(fileName,"jpeg")
+
 
     def contourCreation(self,color,img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -85,7 +115,7 @@ class color_turn:
 		for x in contourList:
 			if cv2.contourArea(x.contour)>cv2.contourArea(result.contour):
 				result = x
-		if cv2.contourArea(result.contour)>2500:
+		if cv2.contourArea(result.contour)>1000:
 			return result
 		else:
 			return None
