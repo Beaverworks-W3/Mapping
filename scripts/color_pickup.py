@@ -48,6 +48,7 @@ class colorPicker:
     def camCallback(self,msg):
         self.contourList = []
         img_data = self.bridge.imgmsg_to_cv2(msg)
+
         for keys in self.colorDic:
             	self.contourCreation(keys,img_data)
         if len(self.contourList)>0:
@@ -67,17 +68,44 @@ class colorPicker:
         	self.saveImg(img,bigContour.text)
         	self.img_pub.publish(bigContour.text)
         else:
-            x,y,w,h = cv2.boundingRect(biggest.contour)
+            x,y,w,h = cv2.boundingRect(bigContour.contour)
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-            sliced = hsv[y:y+h, x:x+w, :]
-            hsvTest = cv2.calcHist(sliced,[0,1],None,[180,256],ranges)
-            description = self.checkMatch(hsvTest,self.imgDict)
+	    padding = 30
+
+	    r1 = np.array([155, 0, 0])
+	    r2 = np.array([175, 255, 255])
+
+            sliced = hsv[y + padding:y+h - padding, x + padding:x+w - padding, :]
+
+	    mask2 = cv2.inRange(sliced, r1, r2)
+	    mask2 = cv2.bitwise_not(mask2)
+	    mask2 = cv2.GaussianBlur(mask2, (21,21), 0)
+	    mask2 = cv2.erode(mask2, (3, 3), iterations=5)
+
+	    contours2 = cv2.findContours(mask2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+
+	    largest = contours2[0]
+	    second_largest = contours2[0]
+	    for x in contours2:
+		if cv2.contourArea(x)>cv2.contourArea(largest):
+			second_largest = largest
+			largest = x
+		elif cv2.contourArea(x) > cv2.contourArea(second_largest):
+			second_largest = x
+
+	    x1,y1,w1,h1 = cv2.boundingRect(second_largest)
+	    sliced = sliced[y1:y1+h1, x1:x1+w1, :]
+
+            description = self.checkMatch(sliced, self.imgDict)
+
             self.saveImg(img,description)
             self.img_pub.publish(description)
 
     def shapeContour(self, cnt):
 	epsilon = 0.1*cv2.arcLength(cnt.contour, True)
 	approx = cv2.approxPolyDP(cnt.contour, epsilon, True) 
+
+	
 	size = len(approx)
 	if(size < 7):
 		return "square"
@@ -87,19 +115,33 @@ class colorPicker:
 		return "circle"
 
 
-    def checkMatch(self,hsvUsed,imageDict):
+    def checkMatch(self,sliced, imgDict):
         valList = []
-        for keys in imageDict:
-            readIn = cv2.imread(keys)
-            convert = cv2.cvtColor(readIn, cv2.COLOR_BGR2HSV)
-            convert = cv2.calcHist(convert,[0,1],None,[180,256],ranges)
-            simVal = cv2.compareHist(hsvUsed,convert,cv2.cv.CV_COMP_CORREL)
-            valList.append((simVal,imageDict[keys]))
-        result = valList[0]
-        for i in range(0,len(valList)):
-            if valList[i][0]<result[0]:
-                result = valList[i]
-        return result[1]
+
+	# Initiate SIFT detector
+	orb = cv2.ORB()
+
+	des1 = orb.detectAndCompute(sliced,None)[1]
+
+	for keys in imgDict:
+		readIn = cv2.imread(keys)
+
+		convert = cv2.cvtColor(readIn, cv2.COLOR_HSV2BGR)
+		des2 = orb.detectAndCompute(convert,None)[1]
+	
+		# create BFMatcher object
+		bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+
+		# Match descriptors.
+		matches = bf.match(des1,des2)
+		valList.append((len(matches),imgDict[keys]))
+
+	result = valList[0]
+	for i in range(0,len(valList)):
+		if valList[i][0]>result[0]:
+			result = valList[i]
+
+	return result[1]
 
     def saveImg(self,img,text):
 		cv2.imwrite("troll.jpeg",img)
