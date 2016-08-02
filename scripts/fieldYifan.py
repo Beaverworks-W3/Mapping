@@ -22,7 +22,7 @@ class getAround:
         # VARIABLES
         self.STEERING_CONSTANT = 1.0
         self.SPEED_CONSTANT = 0.06
-        self.x_boost = 25
+        self.x_boost = 15
         self.y_boost = 0
 	self.drivingSpeed = 0
         self.boost_constant = 0.02
@@ -40,7 +40,7 @@ class getAround:
             total_y = total_y - math.sin(radianAng)/(msg.ranges[i]**2)
 
         # incorporate constant coefficients
-        total_x = total_x * self.boost_constant + self.x_boost - self.drivingSpeed
+        total_x = total_x * self.boost_constant + self.x_boost + self.drivingSpeed*10
         total_y = total_y * self.boost_constant + self.y_boost
 
         # Transform this gradient vector into a PoseStamped object
