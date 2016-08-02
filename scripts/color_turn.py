@@ -32,6 +32,7 @@ class color_turn:
             self.picker.contourCreation(keys,img_data)
         if len(self.picker.contourList)>0:
             biggest = self.picker.findBiggest(self.picker.contourList)
+            print("found")
         if biggest != None:
             x,y,w,h = cv2.boundingRect(biggest.contour)
             if w*h > 20000: #start turning
