@@ -41,7 +41,7 @@ class colorPicker:
         "blue":[100,150,150,135,255,255],
         "yellow":[25, 150, 150,30,255,255],
         "green":[40,100,40,88,255,255],
-        "pink":[165,100,100,170,255,255]
+        "pink":[155,50,50,175,255,255]
         }
 
     def camCallback(self,msg):
@@ -173,7 +173,7 @@ class colorPicker:
 		for x in contourList:
 			if cv2.contourArea(x.contour)>cv2.contourArea(result.contour):
 				result = x
-		if cv2.contourArea(result.contour)>2500:
+		if cv2.contourArea(result.contour)>25000:
 			return result
 		else:
 			return None
