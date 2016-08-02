@@ -77,6 +77,8 @@ class colorPicker:
 
             sliced = hsv[y + padding:y+h - padding, x + padding:x+w - padding, :]
 
+	    '''
+
 	    mask2 = cv2.inRange(sliced, r1, r2)
 	    mask2 = cv2.bitwise_not(mask2)
 	    mask2 = cv2.GaussianBlur(mask2, (21,21), 0)
@@ -96,6 +98,8 @@ class colorPicker:
 	    x1,y1,w1,h1 = cv2.boundingRect(second_largest)
 	    sliced = sliced[y1:y1+h1, x1:x1+w1, :]
 
+	    '''
+
             description = self.checkMatch(sliced, self.imgDict)
 
             self.saveImg(img,description)
@@ -110,7 +114,7 @@ class colorPicker:
 	print(size)
 	if(size < 6):
 		return "square"
-	elif(size < 13):
+	elif(size < 11):
 		return "circle"
 	else:
 		return "cross"
@@ -136,12 +140,18 @@ class colorPicker:
 
 		# Match descriptors.
 		matches = bf.match(des1,des2)
-		valList.append((len(matches),imgDict[keys]))
+
+		valList.append((len(matches), imgDict[keys]))
 
 	result = valList[0]
 	for i in range(0,len(valList)):
+		print (valList[i][1])
+		print (valList[i][0])
 		if valList[i][0]>result[0]:
 			result = valList[i]
+
+	#print('\n'.join([''.join(['{:2}'.format(item) for item in row]) for row in valList]))
+
 	print(result[1])
 	return result[1]
 	
