@@ -27,7 +27,7 @@ class getAround:
         self.STEERING_CONSTANT = 0.2
         self.SPEED_CONSTANT = 0.9
         self.x_boost = 25
-        self.y_boost = 20
+        self.y_boost = 25
         self.drivingSpeed = 0
         self.prev_x = 0
         self.boost_constant_y = 0.05
@@ -41,11 +41,15 @@ class getAround:
 
     def sensorData(self, msg):
         if self.command == "field":
+            self.y_boost = 25
             print("potential field")
             self.runField(msg)
+        if self.command.find("g") == 0:
+            self.y_boost = 35
+            self.runField(msg)
+         
     def callBack(self,msg):
 
-        
         self.command = msg.data
 
     def runField(self,msg):

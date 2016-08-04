@@ -38,11 +38,6 @@ class getAround:
         self.command = "field"
 
     def sensorData(self, sensor):
-        if self.command.find("g") == 0:
-            trimmed = float(self.command.lstrip("g"))
-            self.y_boost = 10
-            print("y_boost =%f "%self.y_boost )
-            self.runField(sensor)
         if self.command.find("r") == 0:
             trimmed = float(self.command.lstrip("r"))
             self.x_boost = 25-0.002*trimmed

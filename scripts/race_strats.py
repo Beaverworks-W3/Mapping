@@ -44,9 +44,9 @@ class raceStrats:
             biggest = None
         if biggest != None and cv2.contourArea(biggest.contour)>1600: #and self.shapeContour(biggest)=="square":
             command = str(cv2.contourArea(biggest.contour))
-            #if biggest.text == "green":
-                #command = "g"+command
-            #else:
+            if biggest.text == "green":
+                command = "g"+command
+            
             if biggest.text == "red":
                 command = "r"+command
             self.strat_pub.publish(command)
@@ -83,7 +83,7 @@ class raceStrats:
         for x in contourList:
             if cv2.contourArea(x.contour)>cv2.contourArea(result.contour):
                 result = x
-        if cv2.contourArea(result.contour)>1000:
+        if cv2.contourArea(result.contour)>1500:
             return result
         else:
             return None
