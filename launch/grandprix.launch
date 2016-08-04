@@ -1,0 +1,6 @@
+<launch>
+	<node name="messageComb" pkg="racecar_12" type="messageComb.py" output="screen" />
+	<node name="racing_strategy" pkg="racecar_12" type="race_strats.py" output="screen" />
+	<node name="shortcut_handle" pkg="racecar_12" type="shortcut_handle.py" output="screen"/>
+	<node name="potential_field" pkg="racecar_12" type="fieldTeam.py" output="screen" />
+</launch>

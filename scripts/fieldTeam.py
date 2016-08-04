@@ -14,7 +14,7 @@ import numpy as np
 class getAround:
     def __init__(self):
         # create Subscriber and initialize racecar class
-        #self.command = rospy.Subscriber("/commands",String,self.callBack)
+        self.command = rospy.Subscriber("/commands",String,self.callBack)
         self.sensors = rospy.Subscriber("/scan",LaserScan,self.sensorData)
         #self.tfResult = rospy.Subscriber("/tf",TFMessage,self.adjust)
 
@@ -27,17 +27,17 @@ class getAround:
         self.STEERING_CONSTANT = 0.2
         self.SPEED_CONSTANT = 0.9
         self.x_boost = 25
-        self.y_boost = 25
+        self.y_boost = 20
         self.drivingSpeed = 0
         self.prev_x = 0
         self.boost_constant_y = 0.05
         self.boost_constant_x = 0.02
         self.prevAngle = 0
         self.drivingAngle = 0
-        self.k_d = -.45
+        self.k_d = -.4
         #self.rate = rospy.Rate(8)
 
-        self.command = "field"
+        self.command = ""
 
     def sensorData(self, msg):
         if self.command == "field":

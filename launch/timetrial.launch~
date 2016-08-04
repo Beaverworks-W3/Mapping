@@ -1,0 +1,8 @@
+<launch>
+	<include file="$(find racecar)/launch/teleop.launch" />
+	<include file="$(find zed_wrapper)/launch/zed.launch" />
+	
+	<node name="racing_strategy" pkg="racecar_12" type="racingStrats.py" output="screen" />
+	<node name="wall_follow" pkg="racecar_12" type="FINAL_WallFollow.py" output="screen"/>
+	<node name="potential_field" pkg="racecar_12" type="fieldTeam.py" output="screen" />
+</launch>
